@@ -1,19 +1,52 @@
-   name: Build credential provider
-   on:
-     workflow_dispatch:
-     push:
-       paths:
-         - 'Samples/CredentialProvider/**'
-   jobs:
-     build:
-      - name: Build
+name: Build credential provider
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Find credential provider solutions
         shell: pwsh
         run: |
-          $slns = Get-ChildItem Samples/CredentialProvider -Recurse -Filter *.sln
+          $slns = Get-ChildItem -Recurse -Filter *.sln | Where-Object { $_.FullName -match '(?i)credential\s*provider' }
           if (-not $slns) {
-            Write-Host "No .sln found. Folder contents:"
-            Get-ChildItem Samples/CredentialProvider -Recurse | Select-Object -First 50 FullName
+            Write-Host "No matching .sln found. Folders with 'credential' in the name:"
+            Get-ChildItem -Recurse -Directory | Where-Object { $_.Name -match '(?i)credential' } | ForEach-Object { Write-Host $_.FullName }
             exit 1
           }
           $slns | ForEach-Object { Write-Host "Found: $($_.FullName)" }
-          msbuild $slns[0].FullName /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 /p:WindowsTargetPlatformVersion=10.0
+          $slns.FullName | Set-Content sln-list.txt
+
+      - name: Build
+        shell: pwsh
+        run: |
+          $built = $false
+          foreach ($sln in Get-Content sln-list.txt) {
+            foreach ($tools in 'v145','v143','v142') {
+              Write-Host "Building $sln with toolset $tools"
+              msbuild "$sln" /m /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=$tools /p:WindowsTargetPlatformVersion=10.0
+              if ($LASTEXITCODE -eq 0) { $built = $true; break }
+            }
+          }
+          Write-Host "Built DLLs:"
+          Get-ChildItem -Recurse -Filter *.dll | Where-Object { $_.FullName -match 'Release' } | ForEach-Object { Write-Host $_.FullName }
+          if ($built) { exit 0 } else { exit 1 }
+
+      - name: Upload DLLs
+        uses: actions/upload-artifact@v4
+        with:
+          name: credprovider-dll
+          path: |
+            **/Release/*.dll
+            **/*redential*/**/*.reg
+          if-no-files-found: warn
