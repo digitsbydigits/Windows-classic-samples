@@ -76,11 +76,11 @@ HRESULT CSampleCredential::Initialize(CREDENTIAL_PROVIDER_USAGE_SCENARIO cpus,
     // Initialize the String value of all the fields.
     if (SUCCEEDED(hr))
     {
-        hr = SHStrDupW(L"Sample Credential", &_rgFieldStrings[SFI_LABEL]);
+        hr = SHStrDupW(L"NERV MAGI TERMINAL", &_rgFieldStrings[SFI_LABEL]);
     }
     if (SUCCEEDED(hr))
     {
-        hr = SHStrDupW(L"Sample Credential Provider", &_rgFieldStrings[SFI_LARGE_TEXT]);
+        hr = SHStrDupW(L"MAGI SYSTEMS ONLINE", &_rgFieldStrings[SFI_LARGE_TEXT]);
     }
     if (SUCCEEDED(hr))
     {
@@ -121,13 +121,13 @@ HRESULT CSampleCredential::Initialize(CREDENTIAL_PROVIDER_USAGE_SCENARIO cpus,
         if (pszUserName != nullptr)
         {
             wchar_t szString[256];
-            StringCchPrintf(szString, ARRAYSIZE(szString), L"User Name: %s", pszUserName);
+            StringCchPrintf(szString, ARRAYSIZE(szString), L"> OPERATOR : %s", pszUserName);
             hr = SHStrDupW(szString, &_rgFieldStrings[SFI_FULLNAME_TEXT]);
             CoTaskMemFree(pszUserName);
         }
         else
         {
-            hr =  SHStrDupW(L"User Name is NULL", &_rgFieldStrings[SFI_FULLNAME_TEXT]);
+            hr =  SHStrDupW(L"> OPERATOR : UNIDENTIFIED", &_rgFieldStrings[SFI_FULLNAME_TEXT]);
         }
     }
     if (SUCCEEDED(hr))
@@ -137,13 +137,13 @@ HRESULT CSampleCredential::Initialize(CREDENTIAL_PROVIDER_USAGE_SCENARIO cpus,
         if (pszDisplayName != nullptr)
         {
             wchar_t szString[256];
-            StringCchPrintf(szString, ARRAYSIZE(szString), L"Display Name: %s", pszDisplayName);
+            StringCchPrintf(szString, ARRAYSIZE(szString), L"> DESIGNATION : %s", pszDisplayName);
             hr = SHStrDupW(szString, &_rgFieldStrings[SFI_DISPLAYNAME_TEXT]);
             CoTaskMemFree(pszDisplayName);
         }
         else
         {
-            hr = SHStrDupW(L"Display Name is NULL", &_rgFieldStrings[SFI_DISPLAYNAME_TEXT]);
+            hr = SHStrDupW(L"> DESIGNATION : UNKNOWN", &_rgFieldStrings[SFI_DISPLAYNAME_TEXT]);
         }
     }
     if (SUCCEEDED(hr))
@@ -153,13 +153,13 @@ HRESULT CSampleCredential::Initialize(CREDENTIAL_PROVIDER_USAGE_SCENARIO cpus,
         if (pszLogonStatus != nullptr)
         {
             wchar_t szString[256];
-            StringCchPrintf(szString, ARRAYSIZE(szString), L"Logon Status: %s", pszLogonStatus);
+            StringCchPrintf(szString, ARRAYSIZE(szString), L"> STATUS : %s", pszLogonStatus);
             hr = SHStrDupW(szString, &_rgFieldStrings[SFI_LOGONSTATUS_TEXT]);
             CoTaskMemFree(pszLogonStatus);
         }
         else
         {
-            hr = SHStrDupW(L"Logon Status is NULL", &_rgFieldStrings[SFI_LOGONSTATUS_TEXT]);
+            hr = SHStrDupW(L"> STATUS : STANDBY", &_rgFieldStrings[SFI_LOGONSTATUS_TEXT]);
         }
     }
 
@@ -616,8 +616,8 @@ struct REPORT_RESULT_STATUS_INFO
 
 static const REPORT_RESULT_STATUS_INFO s_rgLogonStatusInfo[] =
 {
-    { STATUS_LOGON_FAILURE, STATUS_SUCCESS, L"Incorrect password or username.", CPSI_ERROR, },
-    { STATUS_ACCOUNT_RESTRICTION, STATUS_ACCOUNT_DISABLED, L"The account is disabled.", CPSI_WARNING },
+    { STATUS_LOGON_FAILURE, STATUS_SUCCESS, L"ACCESS DENIED.", CPSI_ERROR, },
+    { STATUS_ACCOUNT_RESTRICTION, STATUS_ACCOUNT_DISABLED, L"OPERATOR LOCKED OUT.", CPSI_WARNING },
 };
 
 // ReportResult is completely optional.  Its purpose is to allow a credential to customize the string
